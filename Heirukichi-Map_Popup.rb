@@ -1,14 +1,12 @@
 #==============================================================================
 # HEIRUKICHI MAP POP-UP WINDOWS
 #==============================================================================
-# Version 1.1.1
-# - Last update: 06-26-2019 [MM-DD-YYYY]
+# Version 1.1.2
+# - Last update: 07-04-2018 [MM-DD-YYYY]
 # - Author: Heirukichi
 #==============================================================================
 # TERMS OF USE
 #------------------------------------------------------------------------------
-# This script was commissioned by JosephSeraph from RPGMakerWeb community.
-#
 # You can use this script for both commercial and non commercial games as long
 # as proper credit is given to me (Heirukichi).
 # You can edit this script as much as you like as long as you do not pretend to
@@ -26,10 +24,15 @@
 # the link). While doing this is not mandatory please do not forget about it.
 # It helps a lot.
 # Of course feel free to notify me when you use it for non-commercial games as
-# well. It is highly appreciated.
+# well. It is highly appreciated
+#
+# IMPORTANT NOTICE:
+# If you want to share this script, post a link to my website instead.
 #==============================================================================
 # DESCRIPTION
 #------------------------------------------------------------------------------
+# This script was commissioned by JosephSeraph from RPGMakerWeb community.
+#
 # This script adds a popup window to your Scene_Map. This allows you to show
 # help messages while the player is walking around.
 # Messages can be manually removed or they can have a timer.
@@ -119,286 +122,343 @@
 #	! standard_padding
 #	+ clear_popup_text
 #==============================================================================
-# UPDATE LOG
+# CHANGES LOG
 #------------------------------------------------------------------------------
-# - Version 1.1.1 (06-26-2019)
-#   * Changed Terms of Use. No major changes from the user standpoint. The only
-#     substantial change is that you have to provide a link to my website in
-#     the credits when using this script starting from versino 1.1.1
-# - Version 1.1.0 (10-12-2018)
+# - Version 1.1.2 (07-04-2019)
+#   * Minor internal changes to HMPW module methods.
+#
+# - Version 1.1.1 (10-12-2018)
 #	  * Added customizable window padding (window paddin is different from text
 #	    padding. It represents the distance between window and screen border).
 #==============================================================================
 
 $imported = {}if $imported.nil?
 $imported["Heirukichi_MapPopupWindow"] = true
-
+#==============================================================================
+# ** HMPW module
+#==============================================================================
 module HMPW
-	
-	module Config
-		
-		#======================================================================
-		# TEXT CONTROL SETTINGS
-		#======================================================================
-		# This value tells the engine if you are going to store your text in a
-		# variable or not. Default is true.
-		VARIABLE_CONTROL = true
-		#----------------------------------------------------------------------
-		# Set the following value to be the ID of the variable you want to use
-		# to display your text. Default is 35.
-		# No need to change this value if the previous is set to false.
-		TEXT_VARIABLE = 35
-		#----------------------------------------------------------------------
-		# Set the following value to true if you want your window to disappear
-		# automatically after a certain amount of time or to false if you do
-		# not want it to disappear automatically. Default is true.
-		AUTO_HIDE = true
-		#----------------------------------------------------------------------
-		# The following value is the ID of the variable used to store timer
-		# frames. When this variable reaches 0 your popup window disappears.
-		# If the variable is 0 when message is displayed then your popup window
-		# does not automatically disappear. Default is 36.
-		TIMER_VARIABLE = 36
-		#======================================================================
-		
-		#======================================================================
-		# WINDOW SETTINGS
-		#======================================================================
-		# These values are used to auto-adjust window size. You can customize
-		# them as much as you want. Their names are self-explanatory but if you
-		# are not sure each one is explained in commends.
-		#----------------------------------------------------------------------
-		# Total height of your popup window. Default is 96 (2 normal lines).
-		WINDOW_HEIGHT = 72
-		#----------------------------------------------------------------------
-		# Window width mode. It tells the engine to obtain window width from
-		# window padding or window width. 0 - Window Width, 1 - Window Padding.
-		# Default is 0.
-		WINDOW_WIDTH_MODE = 0
-		#----------------------------------------------------------------------
-		# Total width of your popup window. Default is 0 (whole screen width).
-		WINDOW_WIDTH = 0
-		#----------------------------------------------------------------------
-		# Window horizontal and vertical padding (first value for horizontal,
-		# second value for vertical). Default is 12 for both of them. 
-		# NOTE: values are in pixels, they are not related to grid squares.
-		WINDOW_PADDING = [12, 12]
-		#----------------------------------------------------------------------
-		# Your custom padding (distance between window border and text rect).
-		# Default is 12 (same as default padding in RPG Maker VX Ace).
-		CUSTOM_PADDING = 12
-		#----------------------------------------------------------------------
-		# Window position: 0 - bottom, 1 - top, 2 - middle. Default is 0.
-		WINDOW_POSITION = 0
-		#======================================================================
-		
-	end
-	
-	#==========================================================================
-	# * END OF CONFIGURATION MODULE
-	#--------------------------------------------------------------------------
-	# ! ! WARNING ! !
-	#--------------------------------------------------------------------------
-	# Any modification after this point might compromise this script. Do not
-	# modify anything written below unless you know exactly what you are doing.
-	#==========================================================================
-	
-	def self.variable_control?
-		return Config::VARIABLE_CONTROL
-	end
-	
-	def self.id
-		return Config::TEXT_VARIABLE
-	end
-	
-	def self.popup_activated?(var_id)
-		return (variable_control? && (var_id == id))
-	end
-	
-	def self.padding
-		return Config::CUSTOM_PADDING
-	end
-	
-	def self.window_padding?
-		return (Config::WINDOW_WIDTH_MODE == 1)
-	end
-	
-	def self.window_padding_horz
-		return 0 unless window_padding?
-		return Config::WINDOW_PADDING[0]
-	end
-	
-	def self.window_padding_vert
-		return 0 unless window_padding?
-		return Config::WINDOW_PADDING[1]
-	end
-	
-	def self.height
-		return Config::WINDOW_HEIGHT
-	end
-	
-	def self.width
-		return (Graphics.width - 2 * window_padding_horz) if window_padding?
-		return (Config::WINDOW_WIDTH == 0 ? Graphics.width : Config::WINDOW_WIDTH)
-	end
-	
-	def self.wx
-		return ((Graphics.width - width) / 2)
-	end
-	
-	def self.wy
-		y_pos = case Config::WINDOW_POSITION
-		when 1
-			0 + window_padding_vert
-		when 2
-			(Graphics.height - height) / 2
-		else
-			Graphics.height - height - window_padding_vert
-		end
-		return y_pos
-	end
-	
-	def self.auto_hide?
-		return Config::AUTO_HIDE
-	end
-	
-	def self.timer_variable
-		return $game_variables[Config::TIMER_VARIABLE]
-	end
-	
-	def self.timer_id
-		return Config::TIMER_VARIABLE
-	end
-	
-end
-
+  #============================================================================
+  # ** Config module
+  #============================================================================
+  module Config
+    #==========================================================================
+    # TEXT CONTROL SETTINGS
+    #==========================================================================
+    # This value tells the engine if you are going to store your text in a
+    # variable or not. Default is true.
+    VARIABLE_CONTROL = true
+    #--------------------------------------------------------------------------
+    # Set the following value to be the ID of the variable you want to use
+    # to display your text. Default is 35.
+    # No need to change this value if the previous is set to false.
+    TEXT_VARIABLE = 35
+    #--------------------------------------------------------------------------
+    # Set the following value to true if you want your window to disappear
+    # automatically after a certain amount of time or to false if you do
+    # not want it to disappear automatically. Default is true.
+    AUTO_HIDE = true
+    #--------------------------------------------------------------------------
+    # The following value is the ID of the variable used to store timer
+    # frames. When this variable reaches 0 your popup window disappears.
+    # If the variable is 0 when message is displayed then your popup window
+    # does not automatically disappear. Default is 36.
+    TIMER_VARIABLE = 36
+    #==========================================================================
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #==========================================================================
+    # WINDOW SETTINGS
+    #==========================================================================
+    # These values are used to auto-adjust window size. You can customize
+    # them as much as you want. Their names are self-explanatory but if you
+    # are not sure each one is explained in commends.
+    #--------------------------------------------------------------------------
+    # Total height of your popup window. Default is 96 (2 normal lines).
+    WINDOW_HEIGHT = 72
+    #--------------------------------------------------------------------------
+    # Window width mode. It tells the engine to obtain window width from
+    # window padding or window width. 0 - Window Width, 1 - Window Padding.
+    # Default is 0.
+    WINDOW_WIDTH_MODE = 0
+    #--------------------------------------------------------------------------
+    # Total width of your popup window. Default is 0 (whole screen width).
+    WINDOW_WIDTH = 0
+    #--------------------------------------------------------------------------
+    # Window horizontal and vertical padding (first value for horizontal,
+    # second value for vertical). Default is 12 for both of them. 
+    # NOTE: values are in pixels, they are not related to grid squares.
+    WINDOW_PADDING = [12, 12]
+    #--------------------------------------------------------------------------
+    # Your custom padding (distance between window border and text rect).
+    # Default is 12 (same as default padding in RPG Maker VX Ace).
+    CUSTOM_PADDING = 12
+    #--------------------------------------------------------------------------
+    # Window position: 0 - bottom, 1 - top, 2 - middle. Default is 0.
+    WINDOW_POSITION = 0
+    #==========================================================================
+  end # end of Config module
+  #============================================================================
+  # - - - - - - - - - - - - - ! WARNING ! - - - - - - - - - - - - - - - - - - -
+  #----------------------------------------------------------------------------
+  # Any modification after this point might compromise this script. Do not
+  # modify anything written below unless you know exactly what you are doing.
+  #============================================================================
+  # * Text Stored in a Variable?
+  #----------------------------------------------------------------------------
+  def self.variable_control?
+    return Config::VARIABLE_CONTROL
+  end
+  #----------------------------------------------------------------------------
+  # * ID of the Variable containing text
+  #----------------------------------------------------------------------------
+  def self.id
+    return Config::TEXT_VARIABLE
+  end
+  #----------------------------------------------------------------------------
+  # * Popup activated or not
+  #----------------------------------------------------------------------------
+  def self.popup_activated?(var_id)
+    return (variable_control? && (var_id == id))
+  end
+  #----------------------------------------------------------------------------
+  # * Text Padding
+  #----------------------------------------------------------------------------
+  def self.padding
+    return Config::CUSTOM_PADDING
+  end
+  #----------------------------------------------------------------------------
+  # * Width Mode is Padding?
+  #----------------------------------------------------------------------------
+  def self.window_padding?
+    return (Config::WINDOW_WIDTH_MODE == 1)
+  end
+  #----------------------------------------------------------------------------
+  # * Window Horizontal Padding
+  #----------------------------------------------------------------------------
+  def self.window_padding_horz
+    return 0 unless window_padding?
+    return Config::WINDOW_PADDING[0]
+  end
+  #----------------------------------------------------------------------------
+  # * Window Vertical Padding
+  #----------------------------------------------------------------------------
+  def self.window_padding_vert
+    return 0 unless window_padding?
+    return Config::WINDOW_PADDING[1]
+  end
+  #----------------------------------------------------------------------------
+  # * Window Height
+  #----------------------------------------------------------------------------
+  def self.height
+    return Config::WINDOW_HEIGHT
+  end
+  #----------------------------------------------------------------------------
+  # * Window Width
+  #----------------------------------------------------------------------------
+  def self.width
+    return (Graphics.width - 2 * window_padding_horz) if window_padding?
+    return (Config::WINDOW_WIDTH == 0 ? Graphics.width : Config::WINDOW_WIDTH)
+  end
+  #----------------------------------------------------------------------------
+  # * Window X Position
+  #----------------------------------------------------------------------------
+  def self.wx
+    return ((Graphics.width - width) / 2)
+  end
+  #----------------------------------------------------------------------------
+  # * Window Y Position
+  #----------------------------------------------------------------------------
+  def self.wy
+    y_pos = case Config::WINDOW_POSITION
+    when 1
+      0 + window_padding_vert
+    when 2
+      (Graphics.height - height) / 2
+    else
+      Graphics.height - height - window_padding_vert
+    end
+    return y_pos
+  end
+  #----------------------------------------------------------------------------
+  # * Window Hides Automatically?
+  #----------------------------------------------------------------------------
+  def self.auto_hide?
+    return Config::AUTO_HIDE
+  end
+  #----------------------------------------------------------------------------
+  # * ID of Variable used as a Timer
+  #----------------------------------------------------------------------------
+  def self.timer_id
+    return Config::TIMER_VARIABLE
+  end
+  #----------------------------------------------------------------------------
+  # * Variable used as a Timer
+  #----------------------------------------------------------------------------
+  def self.timer_variable
+    return $game_variables[timer_id]
+  end
+end # end of HMPW module
 #==============================================================================
 # * Scene Map
 #==============================================================================
-
 class Scene_Map < Scene_Base
-	
-	alias hmpw_create_all_windows_old	create_all_windows
-	def create_all_windows
-		hmpw_create_all_windows_old
-		create_map_popup_window
-	end
-	
-	def create_map_popup_window
-		@popup_window = Window_MapPopup.new
-		@popup_window.viewport = @viewport
-	end
-	
-	def show_popup_window
-		@popup_window.show
-	end
-	
-	def hide_popup_window
-		@popup_window.hide
-	end
-	
-	def show_popup_text(text, time = 0)
-		time = HMPW.timer_variable if ((time == 0) && HMPW.auto_hide?)
-		@popup_window.hmpw_show_text(text, time)
-		$game_variables[HMPW.timer_id] = 0 if HMPW.auto_hide?
-	end
-	
-	def hide_popup_window
-		@popup_window.hide
-	end
-	
-	def clear_popup_text
-		@popup_window.clear_popup_text
-		hide_popup_window
-	end
-	
-end
-
+  #----------------------------------------------------------------------------
+  # * Aliased method: create_all_windows
+  #----------------------------------------------------------------------------
+  alias hmpw_create_all_windows_old  create_all_windows
+  def create_all_windows
+    hmpw_create_all_windows_old
+    create_map_popup_window
+  end
+  #----------------------------------------------------------------------------
+  # + New method:create_map_popup_window
+  #----------------------------------------------------------------------------
+  def create_map_popup_window
+    @popup_window = Window_MapPopup.new
+    @popup_window.viewport = @viewport
+  end
+  #----------------------------------------------------------------------------
+  # + New method: show_popup_window
+  #----------------------------------------------------------------------------
+  def show_popup_window
+    @popup_window.show
+  end
+  #----------------------------------------------------------------------------
+  # + New method: hide_popup_window
+  #----------------------------------------------------------------------------
+  def hide_popup_window
+    @popup_window.hide
+  end
+  #----------------------------------------------------------------------------
+  # + New method: show_popup_text
+  #----------------------------------------------------------------------------
+  def show_popup_text(text, time = 0)
+    time = HMPW.timer_variable if ((time == 0) && HMPW.auto_hide?)
+    @popup_window.hmpw_show_text(text, time)
+    $game_variables[HMPW.timer_id] = 0 if HMPW.auto_hide?
+  end
+  #----------------------------------------------------------------------------
+  # + New method: hide_popup_window
+  #----------------------------------------------------------------------------
+  def hide_popup_window
+    @popup_window.hide
+  end
+  #----------------------------------------------------------------------------
+  # + New method: clear_popup_text
+  #----------------------------------------------------------------------------
+  def clear_popup_text
+    @popup_window.clear_popup_text
+    hide_popup_window
+  end
+end # end of SceneMap class
 #==============================================================================
 # * Game Interpreter
 #==============================================================================
-
 class Game_Interpreter
-	
-	alias hmpw_operate_variable_old	operate_variable
-	def operate_variable(variable_id, operation_type, value)
-		hmpw_operate_variable_old(variable_id, operation_type, value)
-		if HMPW.popup_activated?(variable_id)
-			if value != 0
-				show_popup_text(value)
-			else
-				clear_popup_window
-			end
-		end
-	end
-	
-	def set_popup_timer(time)
-		time = 0 if time < 0
-		$game_variables[HMPW.timer_id] = time
-	end
-	
-	def show_popup_text(text, timer = 0)
-		SceneManager.scene.show_popup_text(text, timer)
-	end
-	
-	def hide_popup_window
-		SceneManager.scene.hide_popup_window
-	end
-	
-	def clear_popup_window
-		SceneManager.scene.clear_popup_text
-	end
-	
-end
-
+  #----------------------------------------------------------------------------
+  # * Aliased method: operate_variable
+  #----------------------------------------------------------------------------
+  alias hmpw_operate_variable_old  operate_variable
+  def operate_variable(variable_id, operation_type, value)
+    hmpw_operate_variable_old(variable_id, operation_type, value)
+    if HMPW.popup_activated?(variable_id)
+      if value != 0
+        show_popup_text(value)
+      else
+        clear_popup_window
+      end
+    end
+  end
+  #----------------------------------------------------------------------------
+  # + New method: set_popup_timer
+  #----------------------------------------------------------------------------
+  def set_popup_timer(time)
+    time = 0 if time < 0
+    $game_variables[HMPW.timer_id] = time
+  end
+  #----------------------------------------------------------------------------
+  # + New method: show_popup_text
+  #----------------------------------------------------------------------------
+  def show_popup_text(text, timer = 0)
+    SceneManager.scene.show_popup_text(text, timer)
+  end
+  #----------------------------------------------------------------------------
+  # + New method: hide_popup_window
+  #----------------------------------------------------------------------------
+  def hide_popup_window
+    SceneManager.scene.hide_popup_window
+  end
+  #----------------------------------------------------------------------------
+  # + New method: clear_popup_window
+  #----------------------------------------------------------------------------
+  def clear_popup_window
+    SceneManager.scene.clear_popup_text
+  end
+end # end of Game_Interpreter class
 #==============================================================================
 # * Window Map Popup (new class)
 #==============================================================================
-
 class Window_MapPopup < Window_Base
-	
-	attr_reader		:timer
-	
-	def timed?;			@timed;			end;
-	
-	def initialize
-		super(HMPW.wx, HMPW.wy, HMPW.width, HMPW.height)
-		@timer = 0
-		@timed = false
-		self.hide
-	end
-	
-	def update
-		super
-		decrease_timer if timed?
-	end
-	
-	def hmpw_show_text(text, time = 0)
-		contents.clear
-		draw_text_ex(0, 0, text)
-		if (time > 0)
-			@timer = time
-			@timed = true
-		end
-		self.show
-	end
-	
-	def decrease_timer
-		@timer -= 1
-		self.hide if (timer == 0)
-	end
-	
-	def hide
-		@timed = false
-		super
-	end
-	
-	def standard_padding
-		HMPW.padding
-	end
-	
-	def clear_popup_text
-		contents.clear
-	end
-	
-end
+  #----------------------------------------------------------------------------
+  # * Read-only attributes
+  #----------------------------------------------------------------------------
+  attr_reader    :timer
+  #----------------------------------------------------------------------------
+  # * Timed?
+  #----------------------------------------------------------------------------
+  def timed?;      @timed;      end;
+  #----------------------------------------------------------------------------
+  # * Initialize
+  #----------------------------------------------------------------------------
+  def initialize
+    super(HMPW.wx, HMPW.wy, HMPW.width, HMPW.height)
+    @timer = 0
+    @timed = false
+    self.hide
+  end
+  #----------------------------------------------------------------------------
+  # * Frame Update
+  #----------------------------------------------------------------------------
+  def update
+    super
+    decrease_timer if timed?
+  end
+  #----------------------------------------------------------------------------
+  # * Show text (also makes the window visible)
+  #----------------------------------------------------------------------------
+  def hmpw_show_text(text, time = 0)
+    contents.clear
+    draw_text_ex(0, 0, text)
+    if (time > 0)
+      @timer = time
+      @timed = true
+    end
+    self.show
+  end
+  #----------------------------------------------------------------------------
+  # * Decrease Timer
+  #----------------------------------------------------------------------------
+  def decrease_timer
+    @timer -= 1
+    self.hide if (timer == 0)
+  end
+  #----------------------------------------------------------------------------
+  # * Hide (also pauses the timer)
+  #----------------------------------------------------------------------------
+  def hide
+    @timed = false
+    super
+  end
+  #----------------------------------------------------------------------------
+  # * Standard Padding (depends on HMPW configuration)
+  #----------------------------------------------------------------------------
+  def standard_padding
+    HMPW.padding
+  end
+  #----------------------------------------------------------------------------
+  # * Clear Pop-up text
+  #----------------------------------------------------------------------------
+  def clear_popup_text
+    contents.clear
+  end
+end # end of Window_MapPopup class

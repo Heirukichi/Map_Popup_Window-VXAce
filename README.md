@@ -9,6 +9,13 @@ This script adds a popup window to your Scene_Map. This allows you to show help 
 Messages can be manually removed or they can have a timer.
 The script gives you the freedom to decide if you want to handle your popup window with variables using event commands or using script calls.
 
+## TABLE OF CONTENTS
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Compatibility](#compatibility)
+* [License](#license)
+  * [Important Notice](#important-notice)
+
 ## INSTALLATION
 **- READ THIS PART CAREFULLY BEFORE USING THIS SCRIPT -**
 To use this script add it in your project below Materials. It should not have any compatibility issue provided you paste it BELOW any other script that OVERWRITES methods that are aliased in this script.
@@ -78,7 +85,7 @@ _Window_MapPopup_ (new class, methods with "!" overwrite parent class methods)
 
 ------------------------------------------------------------------
 
-## TERMS OF USE
+## LICENSE
 You can use this script for both commercial and non commercial games as long as proper credit is given to me (Heirukichi).
 You can edit this script as much as you like as long as you do not pretend to have written the whole script and you distribute it under the same license.
 The scirpt is licensed under the GNU General Public License v3.0. You can review the complete license in the LICENSE file or check it at the following link.

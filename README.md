@@ -86,15 +86,17 @@ _Window_MapPopup_ (new class, methods with "!" overwrite parent class methods)
 ------------------------------------------------------------------
 
 ## LICENSE
-You can use this script for both commercial and non commercial games as long as proper credit is given to me (Heirukichi).
-You can edit this script as much as you like as long as you do not pretend to have written the whole script and you distribute it under the same license.
-The scirpt is licensed under the GNU General Public License v3.0. You can review the complete license in the LICENSE file or check it at the following link.
+The code is under the GNU General Public License v3.0. You can review the complete GNU General Public License v3.0 in the LICENSE file or at this [link](https://www.gnu.org/licenses/gpl-3.0.html).
 
-GNU GPL 3.0: https://www.gnu.org/licenses/gpl-3.0.html
+To sum up things you are free to use this material in any commercial and non commercial project as long as _ALL_ the following conditions are satisfied:
+- proper credit is given to me (Heirukichi);
+- a link to my website is provided (I recommend adding it to a credits.txt file in your project, but any other mean is fine);
+- if you modify anything, you still provide credit and properly mark the parts you have modified.
 
-In addition to this I would like to be notified when this script is used in a commercial game. The script is free of charge, but I would like to keep track of where my work is being used.
-
-You can contact me using the contact form on my website (check my profile for the link). While doing this is not mandatory please do not forget about it. It helps a lot. Of course feel free to notify me when you use it for non-commercial games as well. It is highly appreciated.
+In addition, I would like to be notified if you use this in any project.
+You can send me a message containing a link to the finished product using the contact form on my website (check my profile for the link).
+The link is not supposed to contain a free copy of the finished product.
+The sole purpose of the link is to help me keeping track of where my work is being used.
 
 #### IMPORTANT NOTICE:
  If you want to share this script, post a link to my website instead.
